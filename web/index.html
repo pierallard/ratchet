@@ -1,0 +1,26 @@
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script>
+        $(() => {
+            var conn = new WebSocket('ws://localhost:8081');
+            conn.onopen = function (e) {
+                console.log("Connection established!");
+            };
+
+            conn.onmessage = function (e) {
+                console.log(e.data);
+                $('body').prepend($('<div>').html(e.data));
+            };
+
+            $('#button').click(() => {
+                conn.send('Hello World!');
+            });
+        });
+    </script>
+</head>
+<body>
+    <input id="input">
+    <button id="button"></button>
+</body>
+</html>
