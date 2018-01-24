@@ -1,5 +1,14 @@
 $(() => {
-    const conn = new WebSocket('ws://localhost:8081?u=1');
+    const url = window.location.href;
+    const arr = url.split('/');
+    let host = 'localhost';
+    const protocol = arr[0];
+    if (protocol !== 'file:') {
+        const currentHost = arr[2];
+        const arr2 = currentHost.split(':');
+        host = arr2[0];
+    }
+    const conn = new WebSocket('ws://' + host + ':8081');
 
     conn.onopen = function () {
         const url = new URL(window.location.href);
