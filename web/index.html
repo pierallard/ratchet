@@ -6,6 +6,7 @@
     <script>
         $(() => {
             const conn = new WebSocket('ws://localhost:8081?u=1');
+
             conn.onopen = function () {
                 const url = new URL(window.location.href);
                 const u = url.searchParams.get('u');
@@ -18,14 +19,45 @@
                     case 'authenticate':
                         break;
                     case 'message':
+                        const time = new Date(json.time);
+                        const formattedDate = time.toLocaleDateString() + ' ' +
+                            time.getHours() + ':' + time.getMinutes();
                         $('#messages-list').append(
                             $('<div>')
                                 .addClass('message')
                                 .attr('data-client', json.client)
-                                .html(json.value)
+                                .attr('data-time', json.time)
+                                .append(
+                                    $('<div>')
+                                        .addClass('time')
+                                        .html(formattedDate)
+                                ).append(
+                                    $('<div>')
+                                        .addClass('text')
+                                        .html(json.value)
+                                ).append(
+                                    $('<div>')
+                                        .addClass('delete')
+                                        .html('x')
+                                        .click(() => {
+                                            conn.send(JSON.stringify({ action: 'delete', value: json.time }));
+                                        })
+                                )
                         );
                         break;
+                    case 'delete':
+                        $('.message[data-time=' + json.value + ']').remove();
+                        break;
                 }
+            };
+
+            conn.onerror = function(evt) {
+                $('#messages-list').append(
+                    $('<div>')
+                        .addClass('error')
+                        .html('An error occured...')
+                );
+                $('#input').hide();
             };
 
             $('#form').submit((event) => {
@@ -33,6 +65,8 @@
                 conn.send(JSON.stringify({ action: 'message', value: $('#input').val() }));
                 $('#input').val('');
             });
+
+            $('.delete');
         });
     </script>
     <style>
@@ -43,6 +77,9 @@
         body, html {
             margin: 0;
             padding: 0;
+        }
+        .message {
+            margin-bottom: 5px;
         }
         .message[data-client='0'] {
             color: darkgreen;
@@ -62,6 +99,30 @@
             width: calc(100% - 20px);
             border-radius: 4px;
             border: 1px solid #7f7f7f;
+        }
+        .error {
+            color: #c9222b;
+            font-weight: bold;
+            text-align: center;
+        }
+        .time {
+            display: inline;
+            color: #CCC;
+            padding-right: 10px;
+            font-size: 12px;
+        }
+        .text {
+            display: inline;
+        }
+        .delete {
+            background: brown;
+            color: white;
+            height: 20px;
+            width: 20px;
+            border-radius: 4px;
+            float: right;
+            text-align: center;
+            cursor: pointer;
         }
     </style>
 </head>
