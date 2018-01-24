@@ -3,23 +3,34 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script>
         $(() => {
-            var conn = new WebSocket('ws://localhost:8081');
-            conn.onopen = function (e) {
-                console.log("Connection established!");
+            const conn = new WebSocket('ws://localhost:8081?u=1');
+            conn.onopen = function () {
+                const url = new URL(window.location.href);
+                const u = url.searchParams.get('u');
+                conn.send(JSON.stringify({ action: 'authenticate', value: u || 0 }));
             };
 
             conn.onmessage = function (e) {
-                console.log(e.data);
-                $('body').prepend($('<div>').html(e.data));
+                const json = JSON.parse(e.data);
+                switch (json.action) {
+                    case 'authenticate':
+                        break;
+                    case 'message':
+                        $('#messages-list').append($('<div>').html(json.value));
+                        break;
+                }
             };
 
             $('#button').click(() => {
-                conn.send('Hello World!');
+                conn.send(JSON.stringify({ action: 'message', value: 'Hello World!' }));
             });
         });
     </script>
 </head>
 <body>
+    <div id="messages-list">
+
+    </div>
     <input id="input">
     <button id="button"></button>
 </body>

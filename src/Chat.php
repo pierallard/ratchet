@@ -4,42 +4,67 @@ use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
 class Chat implements MessageComponentInterface {
+    /** @var Client[] */
     protected $clients;
 
     public function __construct() {
-        $this->clients = new \SplObjectStorage;
+        $this->clients = [];
     }
 
     public function onOpen(ConnectionInterface $conn) {
-        // Store the new connection to send messages to later
-        $this->clients->attach($conn);
+        $this->clients[] = new Client($conn);
 
-        echo "New connection! ({$conn->resourceId})\n";
+        echo "New connection!\n";
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
-        $numRecv = count($this->clients) - 1;
-        echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
-            , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
-
-        foreach ($this->clients as $client) {
-//            if ($from !== $client) {
-                // The sender is not the receiver, send to each client connected
-                $client->send($msg);
-//            }
+        $json = json_decode($msg);
+        switch($json->action) {
+            case 'authenticate':
+                $this->getClient($from)->authenticate(intval($json->value));
+                foreach ($this->clients as $client) {
+                    $client->send(json_encode([
+                        'action' => 'authenticate',
+                        'client' => $this->getClient($from)->getAuthentication()
+                    ]));
+                }
+                break;
+            case 'message':
+                foreach ($this->clients as $client) {
+                    $client->send(json_encode([
+                        'action' => 'message',
+                        'value' => $json->value,
+                        'client' => $this->getClient($from)->getAuthentication()
+                    ]));
+                }
+                break;
         }
     }
 
     public function onClose(ConnectionInterface $conn) {
-        // The connection is closed, remove it, as we can no longer send it messages
-        $this->clients->detach($conn);
+        for ($i = 0; $i < count(array_keys($this->clients)); $i++) {
+            if ($this->clients[array_keys($this->clients)[$i]]->getConn() === $conn) {
+                echo "Connection {$this->clients[array_keys($this->clients)[$i]]->getAuthentication()} has disconnected\n";
+                unset($this->clients[array_keys($this->clients)[$i]]);
 
-        echo "Connection {$conn->resourceId} has disconnected\n";
+                return;
+            }
+        }
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
         echo "An error has occurred: {$e->getMessage()}\n";
 
         $conn->close();
+    }
+
+    private function getClient($from): Client {
+        foreach ($this->clients as $client) {
+            if ($client->getConn() == $from) {
+                return $client;
+            }
+        }
+
+        throw new \Exception('No client found');
     }
 }
