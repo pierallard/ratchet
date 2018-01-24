@@ -1,5 +1,7 @@
 <html>
 <head>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script>
         $(() => {
@@ -16,22 +18,58 @@
                     case 'authenticate':
                         break;
                     case 'message':
-                        $('#messages-list').append($('<div>').html(json.value));
+                        $('#messages-list').append(
+                            $('<div>')
+                                .addClass('message')
+                                .attr('data-client', json.client)
+                                .html(json.value)
+                        );
                         break;
                 }
             };
 
-            $('#button').click(() => {
-                conn.send(JSON.stringify({ action: 'message', value: 'Hello World!' }));
+            $('#form').submit((event) => {
+                event.preventDefault();
+                conn.send(JSON.stringify({ action: 'message', value: $('#input').val() }));
+                $('#input').val('');
             });
         });
     </script>
+    <style>
+        body, input {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+        .message[data-client='0'] {
+            color: darkgreen;
+        }
+        .message[data-client='1'] {
+            color: red;
+        }
+        #messages-list {
+            height: calc(100% - 76px);
+            padding: 10px;
+        }
+        #input {
+            position: fixed;
+            bottom: 0;
+            margin: 10px;
+            padding: 10px;
+            width: calc(100% - 20px);
+            border-radius: 4px;
+            border: 1px solid #7f7f7f;
+        }
+    </style>
 </head>
 <body>
     <div id="messages-list">
-
     </div>
-    <input id="input">
-    <button id="button"></button>
+    <form id="form">
+        <input id="input" autocomplete="off">
+    </form>
 </body>
 </html>
