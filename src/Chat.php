@@ -13,10 +13,6 @@ class Chat implements MessageComponentInterface {
 
     public function onOpen(ConnectionInterface $conn) {
         $this->clients[] = new Client($conn);
-        foreach (Message::getMessages() as $message) {
-            $this->sendMessage($conn, $message);
-        }
-
         echo "New connection!\n";
     }
 
@@ -45,6 +41,21 @@ class Chat implements MessageComponentInterface {
                     $client->send(json_encode([
                         'action' => 'delete',
                         'value' => $json->value
+                    ]));
+                }
+                break;
+            case 'password':
+                $value = $json->value;
+                if ($value === '') {
+                    $from->send(json_encode([
+                        'action' => 'password_success'
+                    ]));
+                    foreach (Message::getMessages() as $message) {
+                        $this->sendMessage($from, $message);
+                    }
+                } else {
+                    $from->send(json_encode([
+                        'action' => 'password_error'
                     ]));
                 }
                 break;

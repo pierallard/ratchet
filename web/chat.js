@@ -51,6 +51,14 @@ $(() => {
             case 'delete':
                 $('.message[data-time=' + json.value + ']').remove();
                 break;
+            case 'password_success':
+                $('#password_form').hide();
+                $('#form').show();
+                $('#messages-list').show();
+                break;
+            case 'password_error':
+                $('#password_error').show();
+
         }
     };
 
@@ -69,5 +77,9 @@ $(() => {
         $('#input').val('');
     });
 
-    $('.delete');
+    $('#password_form').submit((event) => {
+        event.preventDefault();
+        conn.send(JSON.stringify({ action: 'password', value: hex_md5($('#password_input').val()) }));
+        $('#password_input').val('');
+    });
 });

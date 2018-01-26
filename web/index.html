@@ -3,14 +3,22 @@
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="md5.js"></script>
     <script src="chat.js"></script>
     <link rel="stylesheet" type="text/css" href="chat.css">
 </head>
 <body>
-    <div id="messages-list">
+    <form id="password_form">
+        Password
+        <input class="input" id="password_input" autocomplete="off" type="password"/>
+        <div id="password_error" style="display: none">
+            Wrong password
+        </div>
+    </form>
+    <div id="messages-list" style="display: none">
     </div>
-    <form id="form">
-        <input id="input" autocomplete="off">
+    <form id="form" style="display: none">
+        <input class="input" id="input" autocomplete="off"/>
     </form>
 </body>
 </html>
