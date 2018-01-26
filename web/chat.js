@@ -14,6 +14,7 @@ $(() => {
         const url = new URL(window.location.href);
         const u = url.searchParams.get('u');
         conn.send(JSON.stringify({ action: 'authenticate', value: u || 0 }));
+        $('#messages-list').html('');
     };
 
     conn.onmessage = function (e) {
@@ -45,7 +46,7 @@ $(() => {
                         .append($delete)
                         .append($time)
                         .append($text)
-                );
+                ).scrollTop(1000);
                 break;
             case 'delete':
                 $('.message[data-time=' + json.value + ']').remove();
