@@ -9,6 +9,17 @@ $(() => {
         host = arr2[0];
     }
     const conn = new WebSocket('ws://' + host + ':8081');
+    let encryptor = '';
+
+    function decrypt(value) {
+        const chars = value.split('');
+        let result = '';
+        for (let i = 0; i < chars.length; i++) {
+            result += String.fromCharCode(chars[i].charCodeAt(0) - encryptor[i % encryptor.length].charCodeAt(0))
+        }
+
+        return result;
+    }
 
     conn.onopen = function () {
         const url = new URL(window.location.href);
@@ -31,7 +42,7 @@ $(() => {
                     .html(formattedDate);
                 const $text = $('<div>')
                     .addClass('text')
-                    .html(json.value);
+                    .html(decrypt(json.value));
                 const $delete = $('<div>')
                     .addClass('delete')
                     .html('x')
@@ -79,7 +90,8 @@ $(() => {
 
     $('#password_form').submit((event) => {
         event.preventDefault();
-        conn.send(JSON.stringify({ action: 'password', value: hex_md5($('#password_input').val()) }));
+        encryptor = $('#password_input').val();
+        conn.send(JSON.stringify({ action: 'password', value: encryptor }));
         $('#password_input').val('');
     });
 });

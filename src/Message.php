@@ -28,7 +28,7 @@ class Message {
                     $splitted = preg_split('/ /', $line);
                     $time = intval(array_shift($splitted));
                     $client = intval(array_shift($splitted));
-                    $value = join(' ', $splitted);
+                    $value = str_replace("\n", '', join(' ', $splitted));
                     $result[] = new Message($value, $client, $time);
                 }
             }
@@ -57,7 +57,7 @@ class Message {
         file_put_contents(self::FILE, $result);
     }
 
-    public function write() {
+    public function write(Client $client) {
         $line = sprintf("%s %s %s\n", self::milliseconds(), $this->client, $this->value);
         file_put_contents(self::FILE, $line, FILE_APPEND);
     }

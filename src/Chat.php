@@ -29,10 +29,10 @@ class Chat implements MessageComponentInterface {
                 }
                 break;
             case 'message':
-                $message = new Message($json->value, $this->getClient($from)->getAuthentication());
-                $message->write();
+                $message = new Message($this->getClient($from)->encrypt($json->value), $this->getClient($from)->getAuthentication());
+                $message->write($this->getClient($from));
                 foreach ($this->clients as $client) {
-                    $this->sendMessage($client->getConn(), $message);
+                    $this->sendMessage($client, $message);
                 }
                 break;
             case 'delete':
@@ -46,12 +46,13 @@ class Chat implements MessageComponentInterface {
                 break;
             case 'password':
                 $value = $json->value;
-                if ($value === '') {
+                if (md5($value) === $this->getmd5()) {
                     $from->send(json_encode([
                         'action' => 'password_success'
                     ]));
+                    $this->getClient($from)->setEncryptor($value);
                     foreach (Message::getMessages() as $message) {
-                        $this->sendMessage($from, $message);
+                        $this->sendMessage($this->getClient($from), $message);
                     }
                 } else {
                     $from->send(json_encode([
@@ -89,12 +90,16 @@ class Chat implements MessageComponentInterface {
         throw new \Exception('No client found');
     }
 
-    private function sendMessage(ConnectionInterface $conn, Message $message) {
-        $conn->send(json_encode([
+    private function sendMessage(Client $client, Message $message) {
+        $client->getConn()->send(json_encode([
             'action' => 'message',
             'value' => $message->getValue(),
             'client' => $message->getClient(),
             'time' => $message->getTime()
         ]));
+    }
+
+    private function getmd5() {
+        return str_replace("\n", '', fgets(fopen('info.log', 'r')));
     }
 }
