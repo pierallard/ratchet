@@ -13,7 +13,7 @@ body, html {
     color: darkgreen;
 }
 .message[data-client='1'] {
-    color: red;
+    color: darkmagenta;
 }
 #messages-list {
     height: calc(100% - 76px);
@@ -40,7 +40,7 @@ body, html {
     font-size: 12px;
 }
 .text {
-    display: inline;
+    display: block;
 }
 .delete {
     background: brown;

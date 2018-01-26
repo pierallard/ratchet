@@ -42,9 +42,9 @@ $(() => {
                         .addClass('message')
                         .attr('data-client', json.client)
                         .attr('data-time', json.time)
+                        .append($delete)
                         .append($time)
                         .append($text)
-                        .append($delete)
                 );
                 break;
             case 'delete':
