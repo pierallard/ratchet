@@ -46,7 +46,14 @@ $(() => {
                 const $delete = $('<div>')
                     .addClass('delete')
                     .html('x')
-                    .click(() => {
+                    .click((event) => {
+                        $message = $(event.currentTarget).closest('.message');
+                        $message.addClass('deleting');
+                        setTimeout(function () {
+                            if ($message.closest('body')) {
+                                $message.removeClass('deleting');
+                            }
+                        }, 10000);
                         conn.send(JSON.stringify({ action: 'delete', value: json.time }));
                     });
                 $('#messages-list').append(

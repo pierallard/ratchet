@@ -8,12 +8,20 @@ body, html {
 }
 .message {
     margin-bottom: 5px;
+    opacity: 1;
+    transition: opacity 0.2s ease-in;
 }
 .message[data-client='0'] {
     color: darkgreen;
 }
 .message[data-client='1'] {
     color: darkmagenta;
+}
+.message.deleting {
+    opacity: 0.2;
+}
+.message.deleting .delete {
+    display: none;
 }
 #messages-list {
     height: calc(100% - 76px);
