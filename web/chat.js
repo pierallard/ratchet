@@ -21,6 +21,11 @@ $(() => {
         return result;
     }
 
+    function formatTime(time) {
+        const date = new Date(time);
+        return date.toLocaleDateString() + ' ' + date.getHours() + ':' + date.getMinutes();
+    }
+
     conn.onopen = function () {
         const url = new URL(window.location.href);
         const u = url.searchParams.get('u');
@@ -31,15 +36,19 @@ $(() => {
     conn.onmessage = function (e) {
         const json = JSON.parse(e.data);
         switch (json.action) {
-            case 'authenticate':
+            case 'otherAuthenticated':
+                $('#status').html('Other client is connected');
+                break;
+            case 'otherUnauthenticated':
+                $('#status').html('Other client is disconnected at ' + formatTime(json.time));
+                break;
+            case 'otherTyping':
+                $('#status').html('Other client is typing...');
                 break;
             case 'message':
-                const time = new Date(json.time);
-                const formattedDate = time.toLocaleDateString() + ' ' +
-                    time.getHours() + ':' + time.getMinutes();
                 const $time = $('<div>')
                     .addClass('time')
-                    .html(formattedDate);
+                    .html(formatTime(json.time));
                 const $text = $('<div>')
                     .addClass('text')
                     .html(decrypt(json.value));
@@ -93,6 +102,7 @@ $(() => {
         event.preventDefault();
         conn.send(JSON.stringify({ action: 'message', value: $('#input').val() }));
         $('#input').val('');
+        conn.send(JSON.stringify({ action: 'typing', value: false }));
     });
 
     $('#password_form').submit((event) => {
@@ -100,5 +110,9 @@ $(() => {
         encryptor = $('#password_input').val();
         conn.send(JSON.stringify({ action: 'password', value: encryptor }));
         $('#password_input').val('');
+    });
+
+    $('#input').on('input',function() {
+        conn.send(JSON.stringify({ action: 'typing', value: ($('#input').val() != '') }));
     });
 });

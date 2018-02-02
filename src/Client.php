@@ -12,6 +12,15 @@ class Client {
     /** @var string */
     private $encryptor;
 
+    /** @var bool */
+    private $isConnected;
+
+    /** @var int */
+    private $lastActivity;
+
+    /** @var bool */
+    private $isTyping;
+
     public function __construct(ConnectionInterface $conn) {
         $this->conn = $conn;
     }
@@ -22,6 +31,8 @@ class Client {
 
     public function authenticate(int $value) {
         $this->authentication = $value;
+        $this->isConnected = true;
+        $this->lastActivity = $this->milliseconds();
     }
 
     public function getAuthentication(): int {
@@ -58,5 +69,31 @@ class Client {
         }
 
         return $array;
+    }
+
+    public function setConnected($value) {
+        $this->isConnected = $value;
+        $this->lastActivity = $this->milliseconds();
+    }
+
+    public function isConnected(): bool {
+        return !!$this->isConnected;
+    }
+
+    public function getLastActivity(): int {
+        return $this->lastActivity;
+    }
+
+    private static function milliseconds() {
+        $mt = explode(' ', microtime());
+        return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000));
+    }
+
+    public function setTyping($value) {
+        $this->isTyping = $value;
+    }
+
+    public function isTyping() {
+        return !!$this->isTyping;
     }
 }
