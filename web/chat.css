@@ -24,9 +24,10 @@ body, html {
     display: none;
 }
 #messages-list {
-    height: calc(100% - 76px);
+    height: calc(100% - 90px);
     padding: 10px;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 .input {
     margin: 10px 10px 5px;
@@ -54,12 +55,14 @@ body, html {
 }
 .text {
     display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 .delete {
-    background: brown;
+    background: orangered;
     color: white;
-    height: 20px;
-    width: 20px;
+    height: 22px;
+    width: 22px;
     border-radius: 4px;
     float: right;
     text-align: center;
