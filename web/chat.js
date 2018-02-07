@@ -23,7 +23,15 @@ $(() => {
 
     function formatTime(time) {
         const date = new Date(time);
-        return date.toLocaleDateString() + ' ' + date.getHours() + ':' + date.getMinutes();
+        let hours = date.getHours();
+        if (hours < 10) {
+            hours = '0' + hours;
+        }
+        let minutes = date.getMinutes();
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        return date.toLocaleDateString() + ' ' + hours + ':' + minutes;
     }
 
     conn.onopen = function () {
