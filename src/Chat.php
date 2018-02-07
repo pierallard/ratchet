@@ -77,11 +77,11 @@ class Chat implements MessageComponentInterface {
 
     public function onClose(ConnectionInterface $conn) {
         $this->getClient($conn)->setConnected(false);
-        $currentClient = $this->getClient($conn);
         foreach ($this->getConnectedClients() as $client) {
-            $this->sendStatusOfOther($client, $currentClient);
+            $otherClient = $this->getOtherClient($client);
+            $this->sendStatusOfOther($client, $otherClient);
         }
-        echo sprintf("User %s disconnect.\n", $currentClient->getAuthentication());
+        echo sprintf("User %s disconnect.\n", $this->getClient($conn)->getAuthentication());
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
@@ -129,13 +129,23 @@ class Chat implements MessageComponentInterface {
     }
 
     private function getOtherClient(Client $currentClient): ?Client {
-        foreach ($this->clients as $client) {
-            if ($currentClient->getAuthentication() !== $client->getAuthentication()) {
-                return $client;
-            }
+        $otherClients = array_filter($this->clients, function (Client $client) use ($currentClient) {
+            return ($currentClient->getAuthentication() !== $client->getAuthentication());
+        });
+
+        $connectedClients = array_filter($otherClients, function (Client $client) {
+            return $client->isConnected();
+        });
+
+        if (count($connectedClients) > 0) {
+            return array_shift($connectedClients);
         }
 
-        return null;
+        usort($otherClients, function (Client $a, Client $b) {
+            return $a->getLastActivity() - $b->getLastActivity();
+        });
+
+        return array_shift($otherClients);
     }
 
     private function sendStatusOfOther(?Client $from, ?Client $otherClient): void {

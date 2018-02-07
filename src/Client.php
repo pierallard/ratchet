@@ -91,6 +91,7 @@ class Client {
 
     public function setTyping($value) {
         $this->isTyping = $value;
+        $this->lastActivity = $this->milliseconds();
     }
 
     public function isTyping() {
