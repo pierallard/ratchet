@@ -97,13 +97,15 @@ $(() => {
         }
     };
 
-    conn.onerror = function() {
+    conn.onerror = function(e) {
+        console.log(e);
         $('#messages-list').append(
             $('<div>')
                 .addClass('error')
                 .html('An error occured...')
         );
         $('#input').hide();
+        $('#password_error').html('Impossible to reach websocket').show();
     };
 
     $('#form').submit((event) => {
@@ -123,4 +125,15 @@ $(() => {
     $('#input').on('input',function() {
         conn.send(JSON.stringify({ action: 'typing', value: ($('#input').val() != '') }));
     });
+
+    let intervalCheckConnection = setInterval(() => {
+        if (conn.readyState === 3) {
+            $('#messages-list').append(
+                $('<div>')
+                    .addClass('error')
+                    .html('Connection with websocket closed. Please restart.')
+            );
+            clearInterval(intervalCheckConnection);
+        }
+    },1000);
 });
