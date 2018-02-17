@@ -24,10 +24,12 @@ class Chat implements MessageComponentInterface {
                 $currentClient->authenticate(intval($json->value));
                 break;
             case 'message':
-                $message = new Message($currentClient->encrypt($json->value), $currentClient->getAuthentication());
-                $message->write($currentClient);
-                foreach ($this->getConnectedClients() as $client) {
-                    $this->sendMessage($client, $message);
+                if ($json->value !== '') {
+                    $message = new Message($currentClient->encrypt($json->value), $currentClient->getAuthentication());
+                    $message->write($currentClient);
+                    foreach ($this->getConnectedClients() as $client) {
+                        $this->sendMessage($client, $message);
+                    }
                 }
                 break;
             case 'delete':
