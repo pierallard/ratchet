@@ -142,7 +142,7 @@ class Chat implements MessageComponentInterface {
         }
 
         usort($otherClients, function (Client $a, Client $b) {
-            return $a->getLastActivity() - $b->getLastActivity();
+            return $b->getLastActivity() - $a->getLastActivity();
         });
 
         return array_shift($otherClients);
