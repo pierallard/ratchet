@@ -35,7 +35,7 @@ class Client {
         $this->lastActivity = $this->milliseconds();
     }
 
-    public function getAuthentication(): int {
+    public function getAuthentication():? int {
         return $this->authentication;
     }
 
